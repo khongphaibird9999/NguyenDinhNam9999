@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gửi Ellie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap">
+<style>
+  :root {
+    --bg: #FFE9F0;
+    --bg2: #FFF6F9;
+    --panel: #FFFFFF;
+    --text: #35183F;
+    --muted: #85688F;
+    --accent: #E8436A;
+    --on-accent: #FFFFFF;
+    --line: #F2C6D4;
+    --shadow: rgba(140, 40, 80, .16);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #22112F;
+      --bg2: #2E1742;
+      --panel: #33194A;
+      --text: #FFEFF6;
+      --muted: #C7A6D6;
+      --accent: #FF7A9C;
+      --on-accent: #2B0F26;
+      --line: #533070;
+      --shadow: rgba(0, 0, 0, .4);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #22112F;
+    --bg2: #2E1742;
+    --panel: #33194A;
+    --text: #FFEFF6;
+    --muted: #C7A6D6;
+    --accent: #FF7A9C;
+    --on-accent: #2B0F26;
+    --line: #533070;
+    --shadow: rgba(0, 0, 0, .4);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    background-image: radial-gradient(120% 60% at 50% 0%, var(--bg2), var(--bg));
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 17px;
+    line-height: 1.55;
+    overflow-x: hidden;
+  }
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px 4px;
+    min-height: 56px;
+  }
+  #back {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--panel);
+    box-shadow: 0 1px 4px var(--shadow);
+    font-size: 20px;
+    line-height: 1;
+    color: var(--text);
+    flex: none;
+  }
+  #back[hidden] { visibility: hidden; display: block; }
+  .dots { flex: 1; display: flex; gap: 6px; justify-content: center; margin-right: 36px; }
+  .dots i {
+    height: 7px; width: 7px;
+    border-radius: 999px;
+    background: var(--line);
+    transition: width .3s ease, background .3s ease;
+  }
+  .dots i.done { background: var(--accent); opacity: .55; }
+  .dots i.now { background: var(--accent); width: 24px; }
+
+  #stage { flex: 1; }
+  .slide {
+    padding: 8px 22px 12px;
+    text-align: center;
+    animation: enter .38s ease-out;
+  }
+  .slide.back { animation-name: enterBack; }
+  @keyframes enter { from { opacity: 0; transform: translateX(36px); } to { opacity: 1; transform: none; } }
+  @keyframes enterBack { from { opacity: 0; transform: translateX(-36px); } to { opacity: 1; transform: none; } }
+
+  .art { max-width: 320px; margin: 0 auto 6px; }
+  .art.small { max-width: 230px; }
+  .art svg { width: 100%; height: auto; display: block; overflow: visible; }
+
+  h1 {
+    font-family: "Bricolage Grotesque", "Be Vietnam Pro", sans-serif;
+    font-weight: 800;
+    font-size: clamp(28px, 7.6vw, 38px);
+    line-height: 1.12;
+    letter-spacing: -.01em;
+    margin: 10px 0 12px;
+  }
+  p { margin: 0 0 12px; }
+  .sub { color: var(--muted); }
+  .small { font-size: 14px; color: var(--muted); }
+
+  #foot { padding: 10px 22px 30px; display: flex; justify-content: center; }
+  button { font: inherit; cursor: pointer; border: 0; color: inherit; background: none; }
+  button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  .primary {
+    background: var(--accent);
+    color: var(--on-accent);
+    font-weight: 600;
+    padding: 14px 30px;
+    border-radius: 999px;
+    box-shadow: 0 8px 22px var(--shadow);
+    width: 100%;
+    max-width: 360px;
+  }
+  .primary:active { transform: scale(.98); }
+
+  /* slide: chat */
+  .phone {
+    background: var(--panel);
+    border-radius: 30px;
+    border: 6px solid var(--text);
+    max-width: 310px;
+    margin: 10px auto 16px;
+    overflow: hidden;
+    box-shadow: 0 12px 30px var(--shadow);
+    text-align: left;
+  }
+  .phone .bar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .phone .bar svg { width: 38px; height: 38px; border-radius: 50%; background: #FFE3EC; flex: none; }
+  .phone .bar b { font-family: "Bricolage Grotesque", sans-serif; font-size: 17px; display: block; line-height: 1.2; }
+  .phone .bar span { font-size: 12px; color: var(--muted); }
+  .chat { padding: 16px 12px 12px; display: flex; flex-direction: column; gap: 8px; min-height: 210px; }
+  .b {
+    max-width: 80%;
+    padding: 9px 14px;
+    border-radius: 18px 18px 18px 5px;
+    background: var(--bg);
+    opacity: 0;
+    animation: pop .35s ease-out forwards;
+    overflow-wrap: anywhere;
+    font-size: 16px;
+  }
+  .b.me {
+    align-self: flex-end;
+    background: var(--accent);
+    color: var(--on-accent);
+    border-radius: 18px 18px 5px 18px;
+    font-weight: 500;
+  }
+  .b.seen { align-self: flex-end; background: none; color: var(--muted); font-size: 12px; padding: 0 4px; }
+  .b.typing { display: flex; gap: 4px; padding: 12px 14px; }
+  .b.typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: blink 1s infinite; }
+  .b.typing i:nth-child(2) { animation-delay: .15s; }
+  .b.typing i:nth-child(3) { animation-delay: .3s; }
+  @keyframes blink { 0%, 80%, 100% { opacity: .25; } 40% { opacity: 1; } }
+  @keyframes pop { from { opacity: 0; transform: translateY(8px) scale(.96); } to { opacity: 1; transform: none; } }
+
+  /* slide: report */
+  .paper {
+    position: relative;
+    background: #FFFFFF;
+    color: #35183F;
+    border-radius: 6px;
+    padding: 22px 20px 30px;
+    margin: 34px auto 14px;
+    max-width: 380px;
+    text-align: left;
+    box-shadow: 0 10px 30px var(--shadow);
+    transform: rotate(-1.2deg);
+  }
+  .paper h2 {
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-size: 19px;
+    margin: 0 0 12px;
+    padding-right: 76px;
+    line-height: 1.2;
+  }
+  .paper dl { margin: 0; }
+  .paper dt { font-size: 13px; color: #85688F; margin-top: 10px; }
+  .paper dd { margin: 0; font-weight: 500; border-bottom: 1.5px dashed #E5C8D4; padding-bottom: 4px; }
+  .paper .peek { position: absolute; right: 10px; top: -36px; width: 76px; }
+  .paper .peek svg { width: 100%; height: auto; display: block; }
+  .stamp {
+    position: absolute;
+    right: 8px; bottom: 10px;
+    border: 3.5px solid #D62E4F;
+    color: #D62E4F;
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-weight: 800;
+    font-size: 21px;
+    padding: 4px 12px;
+    border-radius: 8px;
+    opacity: 0;
+    transform: rotate(-12deg) scale(2.2);
+    animation: stampIn .45s cubic-bezier(.2, 1.3, .4, 1) 1s forwards;
+  }
+  @keyframes stampIn { to { opacity: .9; transform: rotate(-12deg) scale(1); } }
+
+  /* slide: reasons */
+  .lead {
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .reasons { list-style: none; margin: 0 auto; padding: 0; max-width: 380px; text-align: left; display: flex; flex-direction: column; gap: 10px; }
+  .reasons li {
+    background: var(--panel);
+    border-radius: 16px;
+    padding: 12px 16px 12px 46px;
+    position: relative;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+  .reasons li::before { content: "💗"; position: absolute; left: 14px; top: 11px; }
+
+  /* slide: promises */
+  .tickets { display: flex; flex-direction: column; gap: 10px; max-width: 390px; margin: 0 auto; }
+  .ticket {
+    background: var(--panel);
+    border-radius: 16px;
+    padding: 12px 14px;
+    display: flex; align-items: center; gap: 12px;
+    text-align: left;
+    box-shadow: 0 2px 8px var(--shadow);
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+  .ticket .box {
+    flex: none;
+    width: 26px; height: 26px;
+    border-radius: 8px;
+    border: 2px solid var(--line);
+    display: grid; place-items: center;
+    font-size: 15px; color: var(--on-accent);
+    transition: background .2s, border-color .2s;
+  }
+  .ticket .sig {
+    margin-left: auto;
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-style: italic;
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 15px;
+    opacity: 0;
+    transform: rotate(-8deg) scale(1.6);
+    transition: opacity .25s, transform .3s cubic-bezier(.2, 1.4, .4, 1);
+    flex: none;
+  }
+  .ticket.on .box { background: var(--accent); border-color: var(--accent); }
+  .ticket.on .sig { opacity: 1; transform: rotate(-8deg) scale(1); }
+  #signNote { min-height: 1.6em; margin-top: 12px; color: var(--muted); font-size: 15px; }
+
+  /* slide: poke */
+  .pokearea {
+    display: block;
+    margin: 0 auto;
+    width: min(70vw, 250px);
+    -webkit-tap-highlight-color: transparent;
+    border-radius: 24px;
+  }
+  .pokearea svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .pokearea.hit { animation: hit .35s ease; }
+  @keyframes hit {
+    0% { transform: translateX(0) rotate(0); }
+    25% { transform: translateX(-9px) rotate(-4deg); }
+    60% { transform: translateX(8px) rotate(3deg); }
+    100% { transform: translateX(0) rotate(0); }
+  }
+  .bubble {
+    display: inline-block;
+    min-height: 44px;
+    background: var(--panel);
+    border-radius: 18px;
+    padding: 9px 16px;
+    box-shadow: 0 2px 8px var(--shadow);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  #count { margin-top: 8px; }
+
+  /* slide: question */
+  #hint { min-height: 1.7em; color: var(--muted); font-size: 15px; margin: 0 0 8px; }
+  .choices {
+    display: flex; align-items: center; justify-content: center;
+    gap: 14px; flex-wrap: wrap;
+    min-height: 110px;
+  }
+  #yes {
+    background: var(--accent);
+    color: var(--on-accent);
+    font-weight: 600;
+    padding: 14px 26px;
+    border-radius: 999px;
+    font-size: calc(17px * var(--grow, 1));
+    box-shadow: 0 8px 22px var(--shadow);
+    transition: font-size .25s ease;
+    max-width: 100%;
+  }
+  #no {
+    background: var(--panel);
+    border: 1.5px solid var(--line);
+    border-radius: 999px;
+    padding: 12px 22px;
+    font-weight: 500;
+    white-space: nowrap;
+    z-index: 20;
+    transition: left .28s cubic-bezier(.3, 1.4, .5, 1), top .28s cubic-bezier(.3, 1.4, .5, 1), transform .2s ease;
+  }
+  #no.flee { position: fixed; }
+  #no.gone { display: none; }
+
+  /* finale */
+  .voucher {
+    border: 2px dashed var(--accent);
+    border-radius: 18px;
+    padding: 16px 18px;
+    background: var(--panel);
+    max-width: 380px;
+    margin: 14px auto;
+    text-align: left;
+  }
+  .voucher small { color: var(--muted); display: block; margin-bottom: 2px; }
+  .voucher strong {
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-size: 20px;
+    line-height: 1.25;
+    display: block;
+  }
+  .sign-off {
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    margin: 18px 0 4px;
+  }
+  .again { color: var(--muted); font-size: 14px; text-decoration: underline; padding: 8px; }
+
+  /* svg motion */
+  .rain line { animation: drip 1s linear infinite; }
+  .rain line:nth-child(2n) { animation-delay: .35s; }
+  .rain line:nth-child(3n) { animation-delay: .65s; }
+  @keyframes drip { 0% { opacity: 0; transform: translateY(-6px); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(16px); } }
+  .tw { animation: tw 2.6s ease-in-out infinite; }
+  @keyframes tw { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+  .float { animation: floaty 3s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+  @keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+  .hearts { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 30; }
+  .hearts span { position: absolute; top: -10vh; animation: fall linear forwards; }
+  @keyframes fall { to { transform: translateY(115vh) rotate(var(--rot, 40deg)); opacity: .9; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .slide, .slide.back { animation: none; }
+    .stamp { animation: none; opacity: .9; transform: rotate(-12deg); }
+    .b { animation: none; opacity: 1; }
+    .b.typing i { animation: none; }
+    .rain line, .tw, .float { animation: none; }
+    .pokearea.hit { animation: none; }
+    #no { transition: none; }
+    .hearts { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <button id="back" type="button" aria-label="Quay lại" hidden>‹</button>
+    <div class="dots" id="dots" aria-hidden="true"></div>
+  </div>
+  <main id="stage" aria-live="polite"></main>
+  <div id="foot"></div>
+</div>
+
+<script>
+(function () {
+  /* ------- nội dung ------- */
+  var THE_LINE = "thôi t k làm phiền nữa, ngủ đi nhé";
+  var REASON = "Mỗi lần Ellie dỗi, nhắn “" + THE_LINE + "”";
+  var LIKES = [
+    "Nụ cười của Ellie làm Nam quên hết mọi mệt mỏi.",
+    "Ellie là người đầu tiên Nam muốn kể mọi chuyện.",
+    "Ngồi cạnh Ellie thì chỗ nào cũng thành chỗ đẹp nhất."
+  ];
+  var PROMISES = [
+    "Không nhắn “thôi t k làm phiền nữa” nữa. Cấm luôn.",
+    "Ellie dỗi thì Nam ở lại, hỏi Ellie đang buồn chuyện gì.",
+    "Nếu Ellie cần yên tĩnh, Nam nói: “Nam ở đây, khi nào Ellie muốn nói thì gọi Nam.”",
+    "Chỉ chúc ngủ ngon khi Ellie thật sự muốn đi ngủ."
+  ];
+  var VOUCHER = "Mỗi lần Ellie dỗi, Nam ở lại dỗ tới khi hết dỗi. Kèm 1 cái ôm và 1 bữa ăn do Ellie chọn.";
+
+  /* ------- vẽ nhân vật ------- */
+  var INK = "#2B1810";
+  var SKIN = "#F6D2B5";
+  function st(w) {
+    return "fill='none' stroke='" + INK + "' stroke-width='" + (w || 4.5) + "' stroke-linecap='round' stroke-linejoin='round'";
+  }
+  function heart(cx, cy, s, color) {
+    return "<path transform='translate(" + cx + " " + cy + ") scale(" + s + ")' d='M0 8 C-12 -2 -10 -12 -4 -12 C-1 -12 0 -9 0 -8 C0 -9 1 -12 4 -12 C10 -12 12 -2 0 8Z' fill='" + color + "'/>";
+  }
+  function flower() {
+    var s = "<path d='M158 240 Q150 200 160 154' stroke='#5BAA6B' stroke-width='5' fill='none' stroke-linecap='round'/>";
+    for (var k = 0; k < 5; k++) {
+      var a = k * 72 * Math.PI / 180;
+      s += "<circle cx='" + (160 + Math.cos(a) * 11) + "' cy='" + (142 + Math.sin(a) * 11) + "' r='9' fill='#FF8FB1'/>";
+    }
+    return s + "<circle cx='160' cy='142' r='7' fill='#FFD166'/>";
+  }
+  function mix(a, b) { var r = {}, k; for (k in a) r[k] = a[k]; for (k in b) r[k] = b[k]; return r; }
+
+  function person(o) {
+    o = o || {};
+    var m = o.mood || "happy", hair = o.hair, shirt = o.shirt;
+    var eyes = "<circle cx='78' cy='100' r='6.5' fill='" + INK + "'/><circle cx='80' cy='98' r='2' fill='#fff'/>" +
+               "<circle cx='122' cy='100' r='6.5' fill='" + INK + "'/><circle cx='124' cy='98' r='2' fill='#fff'/>";
+    var face = "", extra = "";
+    if (m === "happy") {
+      face = "<path " + st() + " d='M68 104 Q78 92 88 104'/><path " + st() + " d='M112 104 Q122 92 132 104'/><path " + st() + " d='M88 126 Q100 140 112 126'/>";
+    } else if (m === "love") {
+      face = heart(78, 100, 1.1, "#FF3D6E") + heart(122, 100, 1.1, "#FF3D6E") + "<path d='M87 124 Q100 148 113 124 Z' fill='#7A2E3A'/>";
+    } else if (m === "sad") {
+      face = eyes + "<path " + st() + " d='M64 88 L88 80'/><path " + st() + " d='M136 88 L112 80'/><path " + st() + " d='M90 134 Q100 124 110 134'/>";
+    } else if (m === "cry") {
+      face = "<path " + st() + " d='M68 99 Q78 109 88 99'/><path " + st() + " d='M112 99 Q122 109 132 99'/>" +
+             "<path d='M74 108 Q65 134 70 158' stroke='#6EC3F5' stroke-width='7' fill='none' stroke-linecap='round' opacity='.9'/>" +
+             "<path d='M126 108 Q135 134 130 158' stroke='#6EC3F5' stroke-width='7' fill='none' stroke-linecap='round' opacity='.9'/>" +
+             "<ellipse cx='100' cy='135' rx='10' ry='8' fill='#7A2E3A'/>";
+    } else if (m === "ouch") {
+      face = "<path " + st() + " d='M68 92 L86 100 L68 108'/><path " + st() + " d='M132 92 L114 100 L132 108'/><ellipse cx='100' cy='134' rx='9' ry='9' fill='#7A2E3A'/>";
+      extra = "<circle cx='100' cy='60' r='9' fill='#FF6B6B' opacity='.85'/><path d='M168 60 Q176 74 168 82 Q160 74 168 60Z' fill='#6EC3F5'/>";
+    }
+    var g = "";
+    if (o.long) g += "<path d='M36 104 Q30 30 100 30 Q170 30 164 104 L174 200 L26 200Z' fill='" + hair + "'/>";
+    g += "<path d='M28 240 Q34 178 100 174 Q166 178 172 240Z' fill='" + shirt + "'/>";
+    g += "<rect x='86' y='146' width='28' height='34' rx='10' fill='" + SKIN + "'/>";
+    if (o.flower) g += flower() + "<circle cx='152' cy='192' r='14' fill='" + SKIN + "'/>";
+    if (o.hand) g += "<circle cx='172' cy='152' r='16' fill='" + SKIN + "'/>";
+    g += "<circle cx='40' cy='104' r='9' fill='" + SKIN + "'/><circle cx='160' cy='104' r='9' fill='" + SKIN + "'/>";
+    g += "<circle cx='100' cy='98' r='60' fill='" + SKIN + "'/>";
+    if (o.long) {
+      g += "<path d='M40 100 Q38 34 100 34 Q162 34 160 100 Q140 60 100 68 Q60 60 40 100Z' fill='" + hair + "'/>" + heart(140, 60, .9, "#FF6F91");
+    } else {
+      g += "<path d='M40 96 Q38 32 100 34 Q162 32 160 96 Q152 66 124 62 Q100 74 76 62 Q48 66 40 96Z' fill='" + hair + "'/>";
+    }
+    g += "<circle cx='62' cy='120' r='9' fill='#FF8FA8' opacity='.5'/><circle cx='138' cy='120' r='9' fill='#FF8FA8' opacity='.5'/>" + face + extra;
+    var t = "translate(" + (o.x || 0) + " " + (o.y || 0) + ") scale(" + (o.s || 1) + ")";
+    if (o.rot) t += " rotate(" + o.rot + " 100 200)";
+    return "<g transform='" + t + "'>" + g + "</g>";
+  }
+  var NAM = { hair: "#2B1D2E", shirt: "#4F7CCB" };
+  var ELLIE = { hair: "#5A3030", shirt: "#F2A03D", long: true };
+
+  function art(vb, inner, label, cls) {
+    return "<div class='art " + (cls || "") + "'><svg viewBox='" + vb + "' role='img' aria-label='" + label + "'>" + inner + "</svg></div>";
+  }
+
+  /* ------- các slide ------- */
+  var slides = [];
+
+  // 1. Thư
+  slides.push({
+    cta: "Mở thư ✉️",
+    html: function () {
+      var env = "<rect x='40' y='150' width='220' height='96' rx='12' fill='#FFE3EC' stroke='#F2B8CB' stroke-width='3'/>" +
+                "<path d='M40 154 L150 214 L260 154' fill='#FFF' stroke='#F2B8CB' stroke-width='3' stroke-linejoin='round'/>" +
+                "<circle cx='150' cy='214' r='15' fill='#FF4F86'/>" + heart(150, 214, .7, "#fff");
+      return art("0 0 300 250", person(mix(NAM, { mood: "sad", flower: true, x: 75, y: -8, s: .75 })) + env, "Nam ló ra khỏi phong bì, cầm một bông hoa") +
+        "<h1>Gửi Ellie</h1>" +
+        "<p class='sub'>Nam có vài điều muốn nói với Ellie. Lần này Nam sẽ nói cho đàng hoàng.</p>";
+    }
+  });
+
+  // 2. Tin nhắn
+  slides.push({
+    cta: "Tiếp tục",
+    html: function () {
+      var av = "<svg viewBox='24 24 152 152' aria-hidden='true'>" + person(mix(ELLIE, { mood: "sad" })) + "</svg>";
+      return "<h1>Chuyện là thế này</h1>" +
+        "<div class='phone'>" +
+          "<div class='bar'>" + av + "<div><b>Ellie</b><span>đang dỗi</span></div></div>" +
+          "<div class='chat'>" +
+            "<div class='b' style='animation-delay:.4s'>Ừ.</div>" +
+            "<div class='b me' style='animation-delay:1.5s'>" + THE_LINE + "</div>" +
+            "<div class='b seen' style='animation-delay:2.4s'>Đã xem</div>" +
+            "<div class='b typing' style='animation-delay:3.2s'><i></i><i></i><i></i></div>" +
+          "</div>" +
+        "</div>" +
+        "<p>Mỗi lần Ellie dỗi, Nam lại nhắn đúng câu này.</p>" +
+        "<p class='sub'>Nghe thì giống nhường nhịn. Thật ra là bỏ đi mất.</p>";
+    }
+  });
+
+  // 3. Xin lỗi
+  slides.push({
+    cta: "Tiếp tục",
+    html: function () {
+      var cloud = "<g fill='#9AA6C4'><circle cx='105' cy='38' r='28'/><circle cx='148' cy='28' r='36'/><circle cx='195' cy='40' r='28'/><rect x='90' y='38' width='120' height='30' rx='15'/></g>";
+      var rain = "<g class='rain' stroke='#7FC8F8' stroke-width='3' stroke-linecap='round'>" +
+                 [100, 122, 145, 168, 190, 208].map(function (x, i) {
+                   return "<line x1='" + x + "' y1='" + (78 + (i % 2) * 6) + "' x2='" + (x - 3) + "' y2='" + (90 + (i % 2) * 6) + "'/>";
+                 }).join("") + "</g>";
+      return art("0 0 300 250", "<ellipse cx='150' cy='232' rx='96' ry='13' fill='#7FC8F8' opacity='.45'/>" +
+                 person(mix(NAM, { mood: "cry", x: 82, y: 58, s: .66 })) + cloud + rain,
+                 "Nam đang khóc dưới một đám mây mưa") +
+        "<h1>Nam xin lỗi Ellie.</h1>" +
+        "<p>Câu đó làm Ellie buồn, và Nam biết rồi.</p>" +
+        "<p class='sub'>Nam ngồi ngoài mưa nghĩ cả buổi. Ướt hết cả người nè.</p>";
+    }
+  });
+
+  // 4. Biên bản
+  slides.push({
+    cta: "Tiếp tục",
+    html: function () {
+      return "<h1>Biên bản tự kiểm điểm</h1>" +
+        "<div class='paper'>" +
+          "<div class='peek'><svg viewBox='0 0 200 240' aria-hidden='true'>" + person(mix(NAM, { mood: "ouch" })) + "</svg></div>" +
+          "<h2>Biên bản nhận lỗi</h2>" +
+          "<dl>" +
+            "<dt>Người có lỗi</dt><dd>Nam</dd>" +
+            "<dt>Người bị hại</dt><dd>Ellie (đáng yêu nhất hệ mặt trời)</dd>" +
+            "<dt>Hành vi</dt><dd>" + REASON + "</dd>" +
+            "<dt>Hậu quả</dt><dd>Ellie buồn, Nam cũng buồn theo</dd>" +
+            "<dt>Mức độ ăn năn</dt><dd>Rất nặng</dd>" +
+          "</dl>" +
+          "<div class='stamp'>ĐÃ NHẬN LỖI</div>" +
+        "</div>" +
+        "<p class='small'>Viết tay, có đóng dấu, không photo.</p>";
+    }
+  });
+
+  // 5. Lãng mạn
+  slides.push({
+    cta: "Tiếp tục",
+    html: function () {
+      var stars = "";
+      [[40, 40], [90, 24], [130, 58], [190, 30], [300, 90], [30, 110], [280, 30], [220, 78], [60, 76]].forEach(function (p, i) {
+        stars += "<circle class='tw' style='animation-delay:" + (i * 0.35) + "s' cx='" + p[0] + "' cy='" + p[1] + "' r='" + (i % 3 === 0 ? 2.4 : 1.6) + "' fill='#FFF3C4'/>";
+      });
+      var scene = "<defs><linearGradient id='sky' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#2A1250'/><stop offset='1' stop-color='#C0508A'/></linearGradient>" +
+        "<radialGradient id='glow'><stop offset='0' stop-color='#FFE9A8' stop-opacity='.6'/><stop offset='1' stop-color='#FFE9A8' stop-opacity='0'/></radialGradient></defs>" +
+        "<rect width='320' height='250' rx='26' fill='url(#sky)'/>" +
+        "<circle cx='252' cy='58' r='52' fill='url(#glow)'/><circle cx='252' cy='58' r='26' fill='#FFE9A8'/>" + stars +
+        person(mix(NAM, { mood: "happy", x: 62, y: 84, s: .55, rot: 7 })) +
+        person(mix(ELLIE, { mood: "love", x: 146, y: 84, s: .55, rot: -7 })) +
+        "<path d='M0 204 Q160 170 320 208 V250 H0Z' fill='#3A1A55'/>" +
+        "<g class='float'>" + heart(160, 62, 1.6, "#FF6F91") + "</g>";
+      var li = LIKES.map(function (t) { return "<li>" + t + "</li>"; }).join("");
+      return art("0 0 320 250", scene, "Nam và Ellie ngồi cạnh nhau dưới bầu trời đầy sao") +
+        "<h1>Nhưng có một điều Nam không hề sai.</h1>" +
+        "<p class='lead'>Là thương Ellie.</p>" +
+        "<ul class='reasons'>" + li + "</ul>";
+    }
+  });
+
+  // 6. Lời hứa
+  slides.push({
+    cta: "Tiếp tục",
+    html: function () {
+      var t = PROMISES.map(function (p) {
+        return "<button class='ticket' type='button' aria-pressed='false'><span class='box' aria-hidden='true'></span><span>" + p + "</span><span class='sig'>Ellie</span></button>";
+      }).join("");
+      return art("0 0 230 250", person(mix(NAM, { mood: "happy", hand: true, x: 10, y: 4 })) + "<g class='float'>" + heart(36, 40, 1.1, "#FF6F91") + "</g>", "Nam giơ tay thề", "small") +
+        "<h1>Lần sau thì khác.</h1>" +
+        "<p class='sub'>Ellie chạm vào từng lời hứa để ký duyệt nha.</p>" +
+        "<div class='tickets'>" + t + "</div><p id='signNote'></p>";
+    },
+    init: function (root) {
+      var tickets = root.querySelectorAll(".ticket");
+      var note = root.querySelector("#signNote");
+      tickets.forEach(function (tk) {
+        tk.addEventListener("click", function () {
+          var on = !tk.classList.contains("on");
+          tk.classList.toggle("on", on);
+          tk.setAttribute("aria-pressed", on ? "true" : "false");
+          tk.querySelector(".box").textContent = on ? "✓" : "";
+          var n = root.querySelectorAll(".ticket.on").length;
+          note.textContent = n === tickets.length ? "Ellie duyệt hết rồi. Nam hơi sợ 😅" : (n ? "Đã duyệt " + n + "/" + tickets.length : "");
+        });
+      });
+    }
+  });
+
+  // 7. Búng trán
+  slides.push({
+    cta: "Đủ rồi, qua câu cuối",
+    html: function () {
+      return "<h1>Ellie muốn phạt Nam không?</h1>" +
+        "<p class='sub'>Chạm vào Nam để búng trán. Nam chịu hết.</p>" +
+        "<div class='bubble' id='bubble'>Nam sẵn sàng rồi.</div>" +
+        "<button class='pokearea' id='poke' type='button' aria-label='Búng trán Nam'>" +
+          "<svg id='pokeSvg' viewBox='0 0 220 250'></svg></button>" +
+        "<p class='small' id='count'>Đã búng: 0 lần</p>";
+    },
+    init: function (root) {
+      var svg = root.querySelector("#pokeSvg");
+      var btn = root.querySelector("#poke");
+      var bubble = root.querySelector("#bubble");
+      var count = root.querySelector("#count");
+      var n = 0, tm = null;
+      var lines = ["Ui!", "Đau nha!", "Nam biết lỗi rồi mà 🥲", "Sưng trán thật rồi nè", "Ellie búng đau ghê. Nhưng Nam xứng đáng.", "Búng nữa cũng được. Nam chịu."];
+      function draw(mood) { svg.innerHTML = person(mix(NAM, { mood: mood, x: 10, y: 0 })); }
+      draw("sad");
+      btn.addEventListener("click", function () {
+        n++;
+        draw("ouch");
+        btn.classList.remove("hit"); void btn.offsetWidth; btn.classList.add("hit");
+        bubble.textContent = lines[Math.min(n - 1, lines.length - 1)];
+        count.textContent = "Đã búng: " + n + " lần";
+        clearTimeout(tm);
+        tm = setTimeout(function () { draw(n >= 4 ? "cry" : "sad"); }, 420);
+      });
+    }
+  });
+
+  // 8. Câu hỏi
+  slides.push({
+    cta: null,
+    html: function () {
+      return art("0 0 220 250", person(mix(NAM, { mood: "sad", flower: true, x: 10, y: 0 })), "Nam cầm hoa, mắt long lanh chờ câu trả lời", "small") +
+        "<h1>Ellie tha lỗi cho Nam chưa?</h1>" +
+        "<p id='hint'></p>" +
+        "<div class='choices'><button id='yes' type='button'>Tha rồi 🥹</button><button id='no' type='button'>Chưa</button></div>";
+    },
+    init: function (root) {
+      var yes = root.querySelector("#yes"), no = root.querySelector("#no"), hint = root.querySelector("#hint");
+      var attempts = 0;
+      var hints = [
+        "Hửm? Chắc bấm nhầm rồi.",
+        "Nút này hơi nhát.",
+        "Ellie đuổi nhanh thật đó.",
+        "Nút Chưa nói là nó mệt rồi.",
+        "Thôi bấm nút bên kia đi mà.",
+        "Nút Chưa sắp biến mất rồi đó…",
+        "Nam đã bảo nó nhát mà."
+      ];
+      function overlaps(x, y, w, h, r) {
+        var m = 24;
+        return !(x + w + m < r.left || x - m > r.right || y + h + m < r.top || y - m > r.bottom);
+      }
+      function dodge(ev) {
+        if (ev && ev.cancelable) ev.preventDefault();
+        attempts++;
+        if (attempts > 9) {
+          no.classList.add("gone");
+          hint.textContent = "Hết nút Chưa rồi. Chỉ còn một lựa chọn thôi 😌";
+          yes.style.setProperty("--grow", 1.5);
+          return;
+        }
+        hint.textContent = hints[Math.min(attempts - 1, hints.length - 1)];
+        yes.style.setProperty("--grow", Math.min(1 + attempts * 0.09, 1.6));
+        no.classList.add("flee");
+        var w = no.offsetWidth, h = no.offsetHeight, pad = 12;
+        var vw = document.documentElement.clientWidth, vh = window.innerHeight;
+        var yr = yes.getBoundingClientRect();
+        var x, y, tries = 0;
+        do {
+          x = pad + Math.random() * (vw - w - pad * 2);
+          y = 70 + Math.random() * (vh - h - 70 - pad);
+          tries++;
+        } while (tries < 30 && overlaps(x, y, w, h, yr));
+        no.style.left = x + "px";
+        no.style.top = y + "px";
+        no.style.transform = "scale(" + Math.max(1 - attempts * 0.07, 0.5) + ")";
+      }
+      no.addEventListener("pointerenter", function (e) { if (e.pointerType === "mouse") dodge(e); });
+      no.addEventListener("pointerdown", dodge);
+      no.addEventListener("focus", dodge);
+      no.addEventListener("click", dodge);
+      yes.addEventListener("click", function () {
+        no.classList.add("gone");
+        go(slides.length - 1);
+        rain();
+      });
+    }
+  });
+
+  // 9. Kết
+  slides.push({
+    cta: null,
+    html: function () {
+      var hs = "<g class='float'>" + heart(150, 24, 1.6, "#FF6F91") + "</g>" +
+               "<g class='float' style='animation-delay:.6s'>" + heart(96, 44, 1, "#FF9DB6") + "</g>" +
+               "<g class='float' style='animation-delay:1.1s'>" + heart(206, 46, 1, "#FF9DB6") + "</g>";
+      return art("0 0 300 250", hs + person(mix(NAM, { mood: "love", x: 30, y: 44, s: .68, rot: 8 })) + person(mix(ELLIE, { mood: "love", x: 122, y: 44, s: .68, rot: -8 })), "Nam và Ellie tựa đầu vào nhau, tim bay xung quanh") +
+        "<h1>Cảm ơn Ellie đã tha cho Nam.</h1>" +
+        "<p>Từ nay Ellie dỗi, Nam ở lại. Đúng theo biên bản nhé.</p>" +
+        "<div class='voucher'><small>Phiếu Nam ở lại</small><strong>" + VOUCHER + "</strong><small style='margin-top:6px'>Đổi bất cứ lúc nào, không cần lý do, không hết hạn.</small></div>" +
+        "<p class='sign-off'>Nam thương Ellie.</p>" +
+        "<p class='small'>Chụp màn hình trang này gửi lại cho Nam nha 📸</p>" +
+        "<button class='again' id='again' type='button'>Xem lại từ đầu</button>";
+    },
+    init: function (root) {
+      root.querySelector("#again").addEventListener("click", function () { go(0); });
+    }
+  });
+
+  /* ------- điều hướng ------- */
+  var stage = document.getElementById("stage");
+  var foot = document.getElementById("foot");
+  var dotsEl = document.getElementById("dots");
+  var backBtn = document.getElementById("back");
+  var idx = 0;
+
+  for (var d = 0; d < slides.length; d++) dotsEl.appendChild(document.createElement("i"));
+
+  function go(n) {
+    var dir = n < idx ? " back" : "";
+    idx = n;
+    var s = slides[idx];
+    stage.innerHTML = "<section class='slide" + dir + "'>" + s.html() + "</section>";
+    foot.innerHTML = s.cta ? "<button class='primary' id='next' type='button'>" + s.cta + "</button>" : "";
+    var nx = document.getElementById("next");
+    if (nx) nx.addEventListener("click", function () { go(idx + 1); });
+    var dots = dotsEl.children;
+    for (var i = 0; i < dots.length; i++) dots[i].className = i === idx ? "now" : (i < idx ? "done" : "");
+    backBtn.hidden = idx === 0;
+    if (s.init) s.init(stage);
+    window.scrollTo(0, 0);
+  }
+  backBtn.addEventListener("click", function () { if (idx > 0) go(idx - 1); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowRight" && slides[idx].cta) go(idx + 1);
+    if (e.key === "ArrowLeft" && idx > 0) go(idx - 1);
+  });
+
+  function rain() {
+    var layer = document.createElement("div");
+    layer.className = "hearts";
+    layer.setAttribute("aria-hidden", "true");
+    var icons = ["❤️", "💗", "💖", "🌸", "✨"];
+    for (var i = 0; i < 48; i++) {
+      var s = document.createElement("span");
+      s.textContent = icons[Math.floor(Math.random() * icons.length)];
+      s.style.left = Math.random() * 100 + "vw";
+      s.style.fontSize = 16 + Math.random() * 22 + "px";
+      s.style.animationDuration = 3 + Math.random() * 3.5 + "s";
+      s.style.animationDelay = Math.random() * 1.8 + "s";
+      s.style.setProperty("--rot", (Math.random() * 120 - 60) + "deg");
+      layer.appendChild(s);
+    }
+    document.body.appendChild(layer);
+    setTimeout(function () { layer.remove(); }, 9000);
+  }
+
+  go(0);
+})();
+</script>
+</body>
+</html>
