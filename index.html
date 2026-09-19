@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi"> 
+<html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -82,7 +82,19 @@
     flex: none;
   }
   #back[hidden] { visibility: hidden; display: block; }
-  .dots { flex: 1; display: flex; gap: 6px; justify-content: center; margin-right: 36px; }
+  #music {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--panel);
+    box-shadow: 0 1px 4px var(--shadow);
+    font-size: 17px;
+    line-height: 1;
+    color: var(--text);
+    flex: none;
+    visibility: hidden;
+  }
+  #music.ready { visibility: visible; }
+  .dots { flex: 1; display: flex; gap: 6px; justify-content: center; }
   .dots i {
     height: 7px; width: 7px;
     border-radius: 999px;
@@ -305,6 +317,14 @@
 
   /* slide: question */
   #hint { min-height: 1.7em; color: var(--muted); font-size: 15px; margin: 0 0 8px; }
+  #hint.alert {
+    background: var(--panel);
+    border: 1.5px solid var(--accent);
+    border-radius: 14px;
+    padding: 10px 14px;
+    color: var(--text);
+    box-shadow: 0 2px 8px var(--shadow);
+  }
   .choices {
     display: flex; align-items: center; justify-content: center;
     gap: 14px; flex-wrap: wrap;
@@ -390,6 +410,7 @@
   <div class="top">
     <button id="back" type="button" aria-label="Quay lại" hidden>‹</button>
     <div class="dots" id="dots" aria-hidden="true"></div>
+    <button id="music" type="button" aria-label="Bật hoặc tắt nhạc">🎵</button>
   </div>
   <main id="stage" aria-live="polite"></main>
   <div id="foot"></div>
@@ -650,13 +671,13 @@
       var yes = root.querySelector("#yes"), no = root.querySelector("#no"), hint = root.querySelector("#hint");
       var attempts = 0;
       var hints = [
-        "Hửm? Chắc bấm nhầm rồi.",
-        "Nút này hơi nhát.",
-        "Ellie đuổi nhanh thật đó.",
-        "Nút Chưa nói là nó mệt rồi.",
-        "Thôi bấm nút bên kia đi mà.",
+        "Chưa thể chọn “Chưa”. Lý do: Ellie đang chặn TikTok và Facebook của Nam. Vui lòng bỏ chặn rồi thử lại 🥺",
+        "Nút Chưa không khả dụng khi Nam vẫn đang bị chặn.",
+        "Bỏ chặn Nam trước đã, rồi mình bàn tiếp nha.",
+        "Ellie ơi, Nam chỉ cách một cái bỏ chặn thôi.",
+        "Nút Chưa mệt rồi. Nam cũng mệt rồi.",
         "Nút Chưa sắp biến mất rồi đó…",
-        "Nam đã bảo nó nhát mà."
+        "Bỏ chặn cho Nam đi mà 🥹"
       ];
       function overlaps(x, y, w, h, r) {
         var m = 24;
@@ -667,10 +688,12 @@
         attempts++;
         if (attempts > 9) {
           no.classList.add("gone");
+          hint.classList.add("alert");
           hint.textContent = "Hết nút Chưa rồi. Chỉ còn một lựa chọn thôi 😌";
           yes.style.setProperty("--grow", 1.5);
           return;
         }
+        hint.classList.add("alert");
         hint.textContent = hints[Math.min(attempts - 1, hints.length - 1)];
         yes.style.setProperty("--grow", Math.min(1 + attempts * 0.09, 1.6));
         no.classList.add("flee");
@@ -711,6 +734,7 @@
         "<p>Từ nay Ellie dỗi, Nam ở lại. Đúng theo biên bản nhé.</p>" +
         "<div class='voucher'><small>Phiếu Nam ở lại</small><strong>" + VOUCHER + "</strong><small style='margin-top:6px'>Đổi bất cứ lúc nào, không cần lý do, không hết hạn.</small></div>" +
         "<p class='sign-off'>Nam thương Ellie.</p>" +
+        "<p class='small'>P/S: Nhớ bỏ chặn TikTok với Facebook cho Nam nha 🥺</p>" +
         "<p class='small'>Chụp màn hình trang này gửi lại cho Nam nha 📸</p>" +
         "<button class='again' id='again' type='button'>Xem lại từ đầu</button>";
     },
@@ -766,6 +790,49 @@
     document.body.appendChild(layer);
     setTimeout(function () { layer.remove(); }, 9000);
   }
+
+  /* ------- nhạc ------- */
+  var MUSIC_FILE = "ido.mp3";   // đặt file mp3 cùng thư mục với index.html
+  var MUSIC_START = 0;          // bắt đầu từ giây thứ mấy (vd: 45 để vào thẳng đoạn điệp khúc)
+  var musicBtn = document.getElementById("music");
+  var audio = new Audio(MUSIC_FILE);
+  audio.loop = true;
+  audio.preload = "auto";
+  audio.volume = 0.8;
+  var musicOn = true, musicStarted = false;
+
+  function paintMusic() {
+    var playing = !audio.paused;
+    musicBtn.textContent = playing ? "🎵" : "🔇";
+    musicBtn.setAttribute("aria-pressed", playing ? "true" : "false");
+  }
+  audio.addEventListener("loadedmetadata", function () {
+    try { if (MUSIC_START > 0 && MUSIC_START < audio.duration) audio.currentTime = MUSIC_START; } catch (e) {}
+    musicBtn.classList.add("ready");
+  });
+  audio.addEventListener("play", paintMusic);
+  audio.addEventListener("pause", paintMusic);
+
+  function startMusic() {
+    if (musicStarted || !musicOn) return;
+    var p = audio.play();
+    if (p && p.then) {
+      p.then(function () { musicStarted = true; paintMusic(); }).catch(function () {});
+    }
+  }
+  document.addEventListener("click", startMusic);
+  musicBtn.addEventListener("click", function (e) {
+    e.stopPropagation();
+    if (audio.paused) {
+      musicOn = true;
+      var p = audio.play();
+      if (p && p.catch) p.catch(function () {});
+      musicStarted = true;
+    } else {
+      musicOn = false;
+      audio.pause();
+    }
+  });
 
   go(0);
 })();
